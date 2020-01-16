@@ -13,9 +13,19 @@
       "UpstreamHttpMethod": [
         "GET"
       ],
+      "routeClaimsRequirement": {
+        "role": "Teste2"
+      },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "ocelotKey",
         "AllowedScopes": []
+      },
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1s",
+        "PeriodTimespan": 1,
+        "Limit": 1
       }
     },
     {
@@ -31,13 +41,21 @@
       "UpstreamHttpMethod": [
         "GET"
       ],
+      "RouteClaimsRequirement": {
+      },
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "ocelotKey",
         "AllowedScopes": []
+      },
+      "RateLimitOptions": {
+        "ClientWhitelist": [],
+        "EnableRateLimiting": true,
+        "Period": "1s",
+        "PeriodTimespan": 1,
+        "Limit": 1
       }
     }
   ],
-  "GlobalConfiguration": {
-   
-  }
+  "GlobalConfiguration": {},
+  "RequestIdKey": "OcRequestId"
 }

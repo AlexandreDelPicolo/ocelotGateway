@@ -8,7 +8,10 @@ using Ocelot.DependencyInjection;
 using Ocelot.Administration;
 using System;
 using IdentityServer4.AccessTokenValidation;
-using Microsoft.OpenApi.Models;
+using Ocelot.Authorisation;
+using System.Security.Claims;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace gateway
 {
@@ -26,11 +29,6 @@ namespace gateway
       services.AddMvc(option => option.EnableEndpointRouting = false);
       services.AddControllers();
 
-      // services.AddSwaggerGen(c =>
-      // {
-      //   c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
-      // });
-
       Action<IdentityServerAuthenticationOptions> options = o =>
       {
         o.Authority = Configuration["IS4:Authority"];
@@ -40,6 +38,7 @@ namespace gateway
         o.RequireHttpsMetadata = false; // ignorar https
       };
 
+      //services.AddAuthorization();
       services
         .AddAuthentication()
         .AddIdentityServerAuthentication(Configuration["IS4:ProviderKey"], options);
@@ -60,20 +59,24 @@ namespace gateway
 
       app.UseRouting();
 
-      app.UseAuthorization();
-      app.UseAuthentication();
-
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllers();
       });
 
-      // app.UseSwaggerUI(c =>
-      // {
-      //   c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ocelot");
-      // });
+      // Pipeline de auth customizado para múltiplas roles - Comentar para voltar para o default
+      var configuration = new OcelotPipelineConfiguration
+      {
+        AuthorisationMiddleware = async (ctx, next) =>
+        {
+          if (CustomAuthenticationPipeline.Execute(ctx))
+            await next.Invoke();
+          else
+            ctx.Errors.Add(new UnauthorisedError($"Fail to authorize"));
+        }
+      };
 
-      await app.UseOcelot();
+      await app.UseOcelot(configuration);
     }
   }
 }
